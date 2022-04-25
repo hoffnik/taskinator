@@ -7,6 +7,8 @@ var formEl = document.querySelector('#task-form');
 var pageContentEl = document.querySelector('#page-content');
 var taskIdCounter = 0;
 
+var tasks = [];
+
 var taskFormHandler = function(event) {
     // console.log(event);
     // prevents the browser from refreshing once we hit the submit button. Otherwise code will run and browser refresh at same time.
@@ -42,7 +44,8 @@ var taskFormHandler = function(event) {
         // package up data as an object
         var taskDataObj = {
             name: taskNameInput,
-            type: taskTypeInput
+            type: taskTypeInput,
+            status: 'to do'
         }; 
 
         createTaskEl(taskDataObj);
@@ -50,6 +53,9 @@ var taskFormHandler = function(event) {
 };
 
 var createTaskEl = function(taskDataObj) {
+    console.log(taskDataObj);
+    console.log(taskDataObj.status);
+
 // Create list item
 var listItemEl = document.createElement('li');
 listItemEl.className = 'task-item';
@@ -81,6 +87,9 @@ listItemEl.appendChild(taskActionsEl);
 taskToDoEl.appendChild(listItemEl);
 // console.dir(listItemEl);
 
+taskDataObj.id = taskIdCounter;
+// push the taskDataObj to our array 'tasks'
+tasks.push(taskDataObj);
 // increase task counter for next unique id
 taskIdCounter++;
 };
@@ -184,7 +193,21 @@ var completeEditTask = function(taskName, taskType, taskId) {
     // set new values
     taskSelected.querySelector('h3.task-name').textContent = taskName;
     taskSelected.querySelector('span.task-type').textContent = taskType;
-    console.log(taskName, taskType);
+    // console.log(taskName, taskType);
+
+    // loop through tasks array and task object with new content
+    /* 
+    At each iteration of this for loop, we are checking to see if that individual task's id property matches the taskId argument that we passed into completeEditTask(). There is one problem: taskId is a string and tasks[i].id is a number, and when we compare the two, we need to make sure that we are comparing a number to a number. This is why we wrap the taskId with a parseInt() function and convert it to a number for the comparison.
+
+    If the two id values match, then we've confirmed that the task at that iteration of the for loop is the one we want to update, and we've reassigned that task's name and type property to the new content submitted by the form when we finished editing it.
+ */
+    for (var i = 0; i < tasks.length; i++) {
+        // is individual task id property the same to taskId argument we passed into completeEditTask()
+        if (tasks[i].id === parseInt(taskId)) {
+            tasks[i].name = taskName;
+            tasks[i].type = taskType;
+        }
+    };
 
     alert('Task Updated');
 
@@ -212,21 +235,29 @@ var taskStatusChangeHandler = function(event) {
     // find the parent task item element based on the id
     var taskSelected = document.querySelector('.task-item[data-task-id="' + taskId + '"]');
     // console.log(taskSelected);
-    console.log(taskToDoEl);
-    console.log(taskInProgressEl);
-    console.log(taskCompletedEl);
+    // console.log(taskToDoEl);
+    // console.log(taskInProgressEl);
+    // console.log(taskCompletedEl);
 
 
 
     if (statusValue === "to do") {
         taskToDoEl.appendChild(taskSelected);
-      } 
-      else if (statusValue === "in progress") {
+    } 
+    else if (statusValue === "in progress") {
         taskInProgressEl.appendChild(taskSelected);
-      } 
-      else if (statusValue === "completed") {
+    } 
+    else if (statusValue === "completed") {
         taskCompletedEl.appendChild(taskSelected);
-      }
+    }
+
+    // update task's status in tasks array
+    for (var i = 0; i < tasks.length; i++) {
+        if (tasks[i].id === parseInt(taskId)) {
+            tasks[i].status = statusValue;
+        }
+    };
+    console.log(tasks);
 };
 
 pageContentEl.addEventListener('click', taskButtonHandler);
