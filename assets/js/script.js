@@ -53,8 +53,8 @@ var taskFormHandler = function(event) {
 };
 
 var createTaskEl = function(taskDataObj) {
-    console.log(taskDataObj);
-    console.log(taskDataObj.status);
+    // console.log(taskDataObj);
+    // console.log(taskDataObj.status);
 
 // Create list item
 var listItemEl = document.createElement('li');
@@ -91,6 +91,9 @@ taskDataObj.id = taskIdCounter;
 // push the taskDataObj to our array 'tasks'
 tasks.push(taskDataObj);
 // increase task counter for next unique id
+
+saveTasks();
+
 taskIdCounter++;
 };
 
@@ -209,6 +212,8 @@ var completeEditTask = function(taskName, taskType, taskId) {
         }
     };
 
+    saveTasks();
+
     alert('Task Updated');
 
     // reset the form by removing the task id and changing the button text back to normal
@@ -221,6 +226,22 @@ var deleteTask = function(taskId) {
     var taskSelected = document.querySelector('.task-item[data-task-id="' + taskId + '"]')
     // remove the task (li) from our list using the remove() method
     taskSelected.remove();
+
+    // create new array to hold updated list of tasks
+    var updatedTaskArr = [];
+
+    // loop through current tasks
+    for (var i = 0; i < tasks.length; i++) {
+        // if tasks[i].id doesn't match the value of taskId, let's keep that task and push it inot the new array
+        if (tasks[i]. id !== parseInt(taskId)) {
+            updatedTaskArr.push(tasks[i]);
+        }
+    };
+
+    // reassign tasks array to be the same as updatedTaskArr
+    tasks = updatedTaskArr;
+
+    saveTasks();
 };
 
 var taskStatusChangeHandler = function(event) {
@@ -257,7 +278,16 @@ var taskStatusChangeHandler = function(event) {
             tasks[i].status = statusValue;
         }
     };
-    console.log(tasks);
+    // console.log(tasks);
+
+    saveTasks();
+};
+
+var saveTasks = function() {
+    // save array data to local storage
+    // JSON stands for JavaScript Object Notation
+    // objects and arrays are not simple data values so they are not stringified by local storage. To do so we use the JSON.stringify() method
+    localStorage.setItem('tasks', JSON.stringify(tasks));
 };
 
 pageContentEl.addEventListener('click', taskButtonHandler);
